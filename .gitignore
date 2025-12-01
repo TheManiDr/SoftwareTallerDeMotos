@@ -1,0 +1,38 @@
+# ========================
+# IGNORAR ARCHIVOS NETBEANS (ANT)
+# ========================
+nbproject/private/
+nbbuild/
+dist/
+build/
+nbdist/
+
+# Archivos generados por compilación
+*.class
+
+# ========================
+# SISTEMA OPERATIVO
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# LOGS Y TEMPORALES
+# ========================
+*.log
+tmp/
+*.tmp
+
+# ========================
+# IDEs alternativos (por si abres el proyecto en otros)
+# ========================
+.idea/
+*.iml
+.vscode/
+
+# ========================
+# CREDENCIALES (si llegas a tener llaves)
+# ========================
+*.jks
+*.keystore
+
