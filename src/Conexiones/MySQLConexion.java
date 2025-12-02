@@ -49,5 +49,8 @@ public class MySQLConexion {
 
         
     }
+    public static Connection getConnection() {
+    return new MySQLConexion().conectar();
+    }
 }
 

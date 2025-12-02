@@ -1,4 +1,5 @@
-package dao;
+package Almacen;
+
 
 import java.sql.*;
 import model.Usuario;
@@ -26,7 +27,6 @@ public class UsuarioAlmacen {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
         }
 
         return null;

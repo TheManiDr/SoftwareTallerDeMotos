@@ -4,6 +4,14 @@
  */
 package view;
 
+
+import Almacen.UsuarioAlmacen;
+import javax.swing.JOptionPane;
+import model.Usuario;
+
+
+
+
 /**
  *
  * @author Manuel
@@ -148,22 +156,30 @@ public class LoginForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void EntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EntrarActionPerformed
-        // TODO add your handling code here:
-        String usuario = cajaTextoUsuario.getText();
-        String contraseña = new String(cajaTextoContraseña.getPassword());
-        
-        if (usuario.trim().equals("Usuario") && contraseña.equals("cliente")) {
-            
-            java.awt.EventQueue.invokeLater(() -> {
-                var ventana = new Menu();
-                ventana.setVisible(true);
-            });
+        String user = cajaTextoUsuario.getText();
+        String pass = new String(cajaTextoContraseña.getPassword());
+
+        // Validación vacíos
+        if (user.isEmpty() || pass.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Llena ambos campos");
+            return;
+        }
+
+        UsuarioAlmacen dao = new UsuarioAlmacen();
+        Usuario u = dao.login(user, pass);
+
+
+        if (u != null) {
+            JOptionPane.showMessageDialog(this, "Bienvenido: " + u.getUsername());
+
+            // abrir menú principal
+            Menu menu = new Menu();
+            menu.setVisible(true);
+
             this.dispose();
+
         } else {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "Usuario o contraseña incorrectos",
-                "Error",
-                javax.swing.JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos");
         }
     }//GEN-LAST:event_EntrarActionPerformed
 
