@@ -107,7 +107,7 @@ public class nuevAORden extends javax.swing.JFrame {
         jButton2.setText("Crear Orden");
         jButton2.addActionListener(this::jButton2ActionPerformed);
 
-        jTextField5.setText("jTextField5");
+        jTextField5.setText("Calle");
         jTextField5.addActionListener(this::jTextField5ActionPerformed);
 
         jTextField6.addActionListener(this::jTextField6ActionPerformed);
