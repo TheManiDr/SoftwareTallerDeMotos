@@ -42,6 +42,7 @@ public class nuevAORden extends javax.swing.JFrame {
 
         volver4.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         volver4.setText("<");
+        volver4.addActionListener(this::volver4ActionPerformed);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -88,6 +89,12 @@ public class nuevAORden extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void volver4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_volver4ActionPerformed
+        // TODO add your handling code here:
+         Menu nuevoFrame = new Menu();
+        nuevoFrame.setVisible(true);
+    }//GEN-LAST:event_volver4ActionPerformed
 
     /**
      * @param args the command line arguments
