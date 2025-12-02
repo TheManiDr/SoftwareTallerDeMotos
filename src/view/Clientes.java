@@ -92,6 +92,7 @@ public class Clientes extends javax.swing.JFrame {
     private void volver3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_volver3ActionPerformed
         Menu nuevoFrame = new Menu();
         nuevoFrame.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_volver3ActionPerformed
 
     /**
