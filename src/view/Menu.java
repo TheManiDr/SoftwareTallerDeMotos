@@ -4,6 +4,8 @@
  */
 package view;
 
+import javax.swing.JFrame;
+
 /**
  *
  * @author lobat
@@ -17,6 +19,7 @@ public class Menu extends javax.swing.JFrame {
      */
     public Menu() {
         initComponents();
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     /**
@@ -190,6 +193,8 @@ public class Menu extends javax.swing.JFrame {
 
     private void clientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clientesActionPerformed
         // TODO add your handling code here:
+        this.setVisible(false);
+        
         Clientes nuevoFrame = new Clientes();
     
     // Mostrar el nuevo frame
@@ -198,6 +203,7 @@ public class Menu extends javax.swing.JFrame {
 
     private void ordenesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ordenesActionPerformed
         // TODO add your handling code here:
+        this.setVisible(false);
         Ordenes nuevoFrame = new Ordenes();
     
     // Mostrar el nuevo frame
@@ -210,6 +216,7 @@ public class Menu extends javax.swing.JFrame {
 
     private void motoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_motoActionPerformed
         // TODO add your handling code here:
+        this.setVisible(false);
         Moto nuevoFrame = new Moto();
     
     // Mostrar el nuevo frame
@@ -218,6 +225,7 @@ public class Menu extends javax.swing.JFrame {
 
     private void creacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_creacionActionPerformed
         // TODO add your handling code here:
+        this.setVisible(false);
         nuevAORden nuevoFrame = new nuevAORden();
     
     // Mostrar el nuevo frame
