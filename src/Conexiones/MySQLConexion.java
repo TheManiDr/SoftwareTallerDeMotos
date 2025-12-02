@@ -16,7 +16,7 @@ public class MySQLConexion {
             con = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/motomami",
                     "root",
-                    "TheManiDr03" // tu contraseña si tienes
+                    "Gatoara09." // tu contraseña si tienes
             );
 
             System.out.println("Conexión exitosa");
