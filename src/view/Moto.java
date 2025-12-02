@@ -179,6 +179,8 @@ public class Moto extends javax.swing.JFrame {
     
     // Mostrar el nuevo frame
         nuevoFrame.setVisible(true);
+        this.dispose();
+        
     }//GEN-LAST:event_volver1ActionPerformed
 
     /**
