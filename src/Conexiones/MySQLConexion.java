@@ -16,7 +16,7 @@ public class MySQLConexion {
         try {
             Properties p = new Properties();
             
-            InputStream input = getClass().getClassLoader().getResourceAsStream("config/config.properties");
+            InputStream input = getClass().getClassLoader().getResourceAsStream("Utils/config.properties");
             
             if (input == null) {
                 System.out.println("No se encontró el archivo config.properties");
