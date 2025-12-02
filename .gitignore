@@ -36,4 +36,4 @@ tmp/
 *.jks
 *.keystore
 
-src/config/config.properties
+src/Utils/config.properties
