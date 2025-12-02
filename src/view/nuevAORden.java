@@ -17,6 +17,7 @@ public class nuevAORden extends javax.swing.JFrame {
      */
     public nuevAORden() {
         initComponents();
+        setLocationRelativeTo(null); 
     }
 
     /**

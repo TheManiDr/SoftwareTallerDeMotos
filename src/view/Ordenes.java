@@ -18,6 +18,7 @@ public class Ordenes extends javax.swing.JFrame {
      */
     public Ordenes() {
         initComponents();
+        setLocationRelativeTo(null);
     }
         /**
          * This method is called from within the constructor to initialize the form.

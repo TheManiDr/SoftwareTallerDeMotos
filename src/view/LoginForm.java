@@ -17,6 +17,7 @@ public class LoginForm extends javax.swing.JFrame {
      */
     public LoginForm() {
         initComponents();
+        setLocationRelativeTo(null); 
     }
 
     /**

@@ -17,6 +17,7 @@ public class Moto extends javax.swing.JFrame {
      */
     public Moto() {
         initComponents();
+        setLocationRelativeTo(null); 
     }
 
     /**

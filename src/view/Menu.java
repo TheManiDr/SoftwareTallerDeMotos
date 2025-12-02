@@ -20,6 +20,7 @@ public class Menu extends javax.swing.JFrame {
     public Menu() {
         initComponents();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); 
     }
 
     /**
