@@ -93,6 +93,7 @@ public class Ordenes extends javax.swing.JFrame {
         // TODO add your handling code here:
          Menu nuevoFrame = new Menu();
         nuevoFrame.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_volver2ActionPerformed
 
     /**
