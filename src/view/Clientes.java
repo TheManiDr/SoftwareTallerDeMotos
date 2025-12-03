@@ -4,11 +4,16 @@
  */
 package view;
 
+import Model.Cliente;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author lobat
  */
-public class Clientes extends javax.swing.JFrame {
+public final class Clientes extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Clientes.class.getName());
 
@@ -18,6 +23,7 @@ public class Clientes extends javax.swing.JFrame {
     public Clientes() {
         initComponents();
         setLocationRelativeTo(null);
+        cargarTablaClientes();
     }
 
     /**
@@ -117,12 +123,15 @@ public class Clientes extends javax.swing.JFrame {
 
         jButton1.setBackground(new java.awt.Color(204, 51, 0));
         jButton1.setText("Eliminar");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
 
         jButton2.setBackground(new java.awt.Color(204, 51, 0));
         jButton2.setText("Cancelar");
+        jButton2.addActionListener(this::jButton2ActionPerformed);
 
         jButton3.setBackground(new java.awt.Color(204, 51, 0));
         jButton3.setText("Crear cliente");
+        jButton3.addActionListener(this::jButton3ActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -236,6 +245,58 @@ public class Clientes extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3ActionPerformed
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        Model.Cliente c = new Model.Cliente();
+        c.setNombre(jTextField1.getText());
+        c.setApellidoP(jTextField2.getText());
+        c.setApellidoM("");  
+        c.setCorreo(jTextField6.getText());
+
+        // dirección
+        c.setCalle(jTextField4.getText());
+        c.setColonia("Centro");
+        c.setCiudad(jTextField5.getText());
+        c.setEstado("N/A");
+
+        // cliente
+        c.setTipoCliente("Normal");
+        c.setLimiteCredito(5000);
+
+        Almacen.ClienteAlmacen dao = new Almacen.ClienteAlmacen();
+        if (dao.insertarCliente(c)) {
+            JOptionPane.showMessageDialog(this, "Cliente registrado!");
+            cargarTablaClientes();
+        }
+
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        int fila = jTable1.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un cliente");
+            return;
+        }
+
+        int idPersona = Integer.parseInt(jTable1.getValueAt(fila, 0).toString());
+
+        Almacen.ClienteAlmacen dao = new Almacen.ClienteAlmacen();
+        if (dao.eliminarCliente(idPersona)) {
+            JOptionPane.showMessageDialog(this, "Cliente dado de baja");
+            cargarTablaClientes();
+        }
+
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        jTextField1.setText("");
+        jTextField2.setText("");
+        jTextField3.setText("");
+        jTextField4.setText("");
+        jTextField5.setText("");
+        jTextField6.setText("");
+
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -260,6 +321,34 @@ public class Clientes extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new Clientes().setVisible(true));
     }
+    public void cargarTablaClientes() {
+        Almacen.ClienteAlmacen dao = new Almacen.ClienteAlmacen();
+        List<Cliente> lista = dao.obtenerClientes();
+
+        DefaultTableModel modelo = new DefaultTableModel();
+        modelo.addColumn("ID");
+        modelo.addColumn("Nombre");
+        modelo.addColumn("Apellido P");
+        modelo.addColumn("Apellido M");
+        modelo.addColumn("Ciudad");
+        modelo.addColumn("Tipo");
+        modelo.addColumn("Crédito");
+
+        for (Cliente c : lista) {
+            modelo.addRow(new Object[]{
+                c.getIdPersona(),
+                c.getNombre(),
+                c.getApellidoP(),
+                c.getApellidoM(),
+                c.getCiudad(),
+                c.getTipoCliente(),
+                c.getLimiteCredito()
+            });
+        }
+
+    jTable1.setModel(modelo);
+}
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
