@@ -162,8 +162,8 @@ public class LoginForm extends javax.swing.JFrame {
             return;
         }
 
-        UsuarioAlmacen dao = new UsuarioAlmacen();
-        Usuario u = dao.login(user, pass);
+        UsuarioAlmacen almacen = new UsuarioAlmacen();
+        Usuario u = almacen.login(user, pass);
 
 
         if (u != null) {
