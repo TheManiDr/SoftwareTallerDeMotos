@@ -11,12 +11,61 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.RowFilter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.TableRowSorter;
+
 
 /**
  *
  * @author lobat
  */
 public final class Clientes extends javax.swing.JFrame {
+    
+    private void inicializarFiltroBusqueda() {
+    // 1. Configurar el RowSorter en la tabla
+    trsFiltro = new TableRowSorter(modeloTabla);
+    tblClientes.setRowSorter(trsFiltro);
+
+    // 2. Agregar DocumentListener al campo de texto
+    txtBuscarCliente.getDocument().addDocumentListener(new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            aplicarFiltro();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            aplicarFiltro();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            // No se usa para JTextfields
+        }
+    });
+}
+
+private void aplicarFiltro() {
+    try {
+        String textoBusqueda = txtBuscarCliente.getText();
+        
+        // El filtro buscará en las columnas de la tabla (0, 1, 2, 3)
+        // 0: ID | 1: Nombre | 2: Apellidos | 3: Ciudad
+        // (?i) = Ignorar mayúsculas/minúsculas.
+        
+        // Buscamos en las columnas visibles (ID, Nombre, Apellidos, Ciudad)
+        trsFiltro.setRowFilter(RowFilter.regexFilter("(?i)" + textoBusqueda, 
+                                                     1, 2, 3)); 
+
+    } catch (java.util.regex.PatternSyntaxException e) {
+        // En caso de error en la expresión de búsqueda (ej: un solo paréntesis)
+        System.err.println("Error en la expresión de búsqueda: " + e.getMessage());
+        trsFiltro.setRowFilter(null); 
+    }
+}
+    private TableRowSorter trsFiltro;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Clientes.class.getName());
     
@@ -27,11 +76,13 @@ public final class Clientes extends javax.swing.JFrame {
     private int idDireccionSeleccionada = 0;
     
     public Clientes() {
-        initComponents();
-        setLocationRelativeTo(null);
+       initComponents();
+       setLocationRelativeTo(null);
+    
+       configurarTabla();
+       cargarTablaClientes();
+       inicializarFiltroBusqueda();
         
-        configurarTabla();
-        cargarTablaClientes();
     }
     
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -40,6 +91,8 @@ public final class Clientes extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         volver3 = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        txtBuscarCliente = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         txtNombre = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -52,7 +105,7 @@ public final class Clientes extends javax.swing.JFrame {
         txtCiudad = new javax.swing.JTextField();
         txtCorreoElectronico = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTableClientes = new javax.swing.JTable();
+        tblClientes = new javax.swing.JTable();
         btnEliminar = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
         btnGuardarActualizar = new javax.swing.JButton();
@@ -72,18 +125,29 @@ public final class Clientes extends javax.swing.JFrame {
         volver3.setText("<");
         volver3.addActionListener(this::volver3ActionPerformed);
 
+        jLabel7.setText("Buscar");
+
+        txtBuscarCliente.addActionListener(this::txtBuscarClienteActionPerformed);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(volver3, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 534, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(txtBuscarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addComponent(volver3, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(volver3, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7)
+                    .addComponent(txtBuscarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -113,7 +177,7 @@ public final class Clientes extends javax.swing.JFrame {
 
         txtCiudad.setText("Ciudad");
 
-        jTableClientes.setModel(new javax.swing.table.DefaultTableModel(
+        tblClientes.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -124,7 +188,7 @@ public final class Clientes extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(jTableClientes);
+        jScrollPane1.setViewportView(tblClientes);
 
         btnEliminar.setBackground(new java.awt.Color(204, 51, 0));
         btnEliminar.setText("Eliminar");
@@ -148,7 +212,7 @@ public final class Clientes extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 665, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(33, 33, 33)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -186,7 +250,7 @@ public final class Clientes extends javax.swing.JFrame {
                         .addComponent(txtCiudad, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(txtEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(102, Short.MAX_VALUE))))
             .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(73, 73, 73)
@@ -196,7 +260,7 @@ public final class Clientes extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(33, 33, 33)
                     .addComponent(jLabel2)
-                    .addContainerGap(512, Short.MAX_VALUE)))
+                    .addContainerGap(579, Short.MAX_VALUE)))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -241,7 +305,7 @@ public final class Clientes extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 665, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -264,15 +328,15 @@ public final class Clientes extends javax.swing.JFrame {
                 return false; 
             }
         };
-        jTableClientes.setModel(modeloTabla); 
+        tblClientes.setModel(modeloTabla); 
         
         // Ocultar la columna idDireccion (Columna 4)
-        jTableClientes.getColumnModel().getColumn(4).setMinWidth(0);
-        jTableClientes.getColumnModel().getColumn(4).setMaxWidth(0);
-        jTableClientes.getColumnModel().getColumn(4).setWidth(0);
+        tblClientes.getColumnModel().getColumn(4).setMinWidth(0);
+        tblClientes.getColumnModel().getColumn(4).setMaxWidth(0);
+        tblClientes.getColumnModel().getColumn(4).setWidth(0);
         
         // Listener para Clic en la Tabla (USANDO NOMBRE CLARO)
-        jTableClientes.addMouseListener(new java.awt.event.MouseAdapter() {
+        tblClientes.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                  jTableClientesMouseClicked(evt);
@@ -381,7 +445,7 @@ public final class Clientes extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarActualizarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        int fila = jTableClientes.getSelectedRow();
+        int fila = tblClientes.getSelectedRow();
         if (fila == -1) {
             JOptionPane.showMessageDialog(this, "Seleccione un cliente para dar de baja.", "Advertencia", JOptionPane.WARNING_MESSAGE);
             return;
@@ -410,6 +474,10 @@ public final class Clientes extends javax.swing.JFrame {
        resetearModo();
     }//GEN-LAST:event_btnCancelarActionPerformed
 
+    private void txtBuscarClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarClienteActionPerformed
+        
+    }//GEN-LAST:event_txtBuscarClienteActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -419,7 +487,7 @@ public final class Clientes extends javax.swing.JFrame {
     // Agrega este método en algún lugar de la clase Clientes.java
 private void jTableClientesMouseClicked(java.awt.event.MouseEvent evt) {                                             
     // Lógica para cargar los datos del cliente de la tabla a los campos de texto
-    int fila = jTableClientes.getSelectedRow();
+    int fila = tblClientes.getSelectedRow();
     
     if (fila >= 0) {
         // 1. Obtener el ID del cliente (Columna 0 en el modeloTabla)
@@ -467,11 +535,13 @@ private void jTableClientesMouseClicked(java.awt.event.MouseEvent evt) {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTableClientes;
+    private javax.swing.JTable tblClientes;
     private javax.swing.JTextField txtApellido;
+    private javax.swing.JTextField txtBuscarCliente;
     private javax.swing.JTextField txtCalle;
     private javax.swing.JTextField txtCiudad;
     private javax.swing.JTextField txtCorreoElectronico;
