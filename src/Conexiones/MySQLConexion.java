@@ -16,27 +16,25 @@ public class MySQLConexion {
     
     private static final Logger logger = Logger.getLogger(MySQLConexion.class.getName());
     
-    private static Connection con = null;
 
     /**
      * Establece la conexión a la base de datos y la retorna.
      * @return El objeto Connection o null si falla.
      */
     public static Connection getConnection() {
-        if (con == null) {
-            try {
-                con = DriverManager.getConnection(URL, USER, PASSWORD);
-                logger.log(Level.INFO, "Conectado a motomami exitosamente.");
-                
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error al conectar con la base de datos.", e);
-                JOptionPane.showMessageDialog(null, 
-                        "ERROR DE CONEXIÓN.\nVerifica el servidor o las credenciales.\nDetalle: " + e.getMessage(), 
-                        "Error de Conexión", JOptionPane.ERROR_MESSAGE);
-                con = null;
-            }
-        }
-        return con;
+        try {
+        // Siempre intentamos crear una conexión nueva
+        Connection nuevaConexion = DriverManager.getConnection(URL, USER, PASSWORD);
+        logger.log(Level.INFO, "Conexión creada exitosamente.");
+        return nuevaConexion;
+        
+    } catch (SQLException e) {
+        logger.log(Level.SEVERE, "Error al crear la conexión con la base de datos.", e);
+        JOptionPane.showMessageDialog(null, 
+                "ERROR DE CONEXIÓN.\nDetalle: " + e.getMessage(), 
+                "Error de Conexión", JOptionPane.ERROR_MESSAGE);
+        return null;
+    }
     }
     
     // Método para cerrar la conexión (opcional, pero buena práctica)
@@ -52,6 +50,7 @@ public class MySQLConexion {
 
     /**
      * CORREGIDO: Retorna la conexión. Usado por MarcaAlmacen, etc.
+     * @return 
      */
     public static Connection getConexion() {
         // Llama al método estático que ya implementaste y funciona.
@@ -60,6 +59,7 @@ public class MySQLConexion {
 
     /**
      * CORREGIDO: Retorna la conexión. Usado en alguna parte de tu código.
+     * @return 
      */
     public Connection conectar() {
         // Llama al método estático. Nota: Este método no es estático, pero llama al estático.
