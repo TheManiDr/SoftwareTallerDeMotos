@@ -60,15 +60,45 @@ public class Moto extends javax.swing.JFrame {
     }
     
     private void cargarTablaMotos() {
-        // Definir los encabezados de la tabla con los campos del JOIN
-        String[] columnNames = {"ID", "Matrícula", "Marca", "Modelo", "Año", "Color", "N° Serie"};
-        DefaultTableModel model = new DefaultTableModel(null, columnNames) {
-            // Impedir que la tabla sea editable
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+    // 1. Definir encabezados y crear el modelo
+    String[] columnNames = {"ID", "Matrícula", "Marca", "Modelo", "Año", "Color", "N° Serie"};
+    DefaultTableModel model = new DefaultTableModel(null, columnNames) {
+        // Impedir que la tabla sea editable
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    try {
+        // 2. Obtener los datos de la base de datos (DAO)
+        // **IMPORTANTE: Debes asegurarte que este método devuelve los nombres de Marca y Modelo, no solo los IDs**
+        List<Motocicleta> motos = motoAlmacen.obtenerTodasLasMotos();
+
+        // 3. Iterar sobre la lista y agregar filas al modelo
+        for (Motocicleta moto : motos) {
+            Object[] row = new Object[7];
+            row[0] = moto.getIdMoto();
+            row[1] = moto.getNoMatricula();
+            row[2] = moto.getMarca(); // Nombre de la marca (obtenido del JOIN en el DAO)
+            row[3] = moto.getNombreModelo(); // Nombre del modelo (obtenido del JOIN en el DAO)
+            row[4] = moto.getAño();
+            row[5] = moto.getColor();
+            // Si el campo N° Serie está en la BD y en tu objeto Motocicleta, úsalo aquí:
+            row[6] = moto.getNumSerie(); 
+            
+            model.addRow(row);
+        }
+
+        // 4. Asignar el modelo lleno a la JTable para que se muestren los datos
+        tableMotos.setModel(model);
+        
+    } catch (Exception e) {
+        // Manejo de errores de conexión o SQL
+        logger.log(Level.SEVERE, "Error al cargar la tabla de motos:", e);
+        JOptionPane.showMessageDialog(this, "Error al cargar los datos de la tabla. Revise la conexión y la consulta del DAO.", "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+    }
+}
 
     
     
@@ -359,13 +389,9 @@ public class Moto extends javax.swing.JFrame {
     }//GEN-LAST:event_marcaActionPerformed
 
     private void volver1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_volver1ActionPerformed
-        
-        Menu nuevoFrame = new Menu();
-    
-    // Mostrar el nuevo frame
-        nuevoFrame.setVisible(true);
-        this.dispose();
-        
+    Menu nuevoFrame = new Menu();
+    nuevoFrame.setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_volver1ActionPerformed
 
     private void CancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CancelarActionPerformed
@@ -404,41 +430,7 @@ public class Moto extends javax.swing.JFrame {
     private void colorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_colorActionPerformed
-    private void cargarTablaMotos() {
-    // Definir los encabezados de la tabla
-    String[] columnNames = {"ID", "Matrícula", "Marca", "Modelo", "Año", "Color", "N° Serie"};
-    DefaultTableModel model = new DefaultTableModel(null, columnNames) {
-        // Impedir que la tabla sea editable
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
 
-    try {
-        // Obtener la lista de motocicletas con información de Marca/Modelo (JOIN en la DB)
-        List<Motocicleta> motos = motoAlmacen.obtenerTodasLasMotos();
-
-        // Rellenar las filas de la tabla
-        for (Motocicleta moto : motos) {
-            Object[] row = new Object[7];
-            row[0] = moto.getIdMoto();
-            row[1] = moto.getNoMatricula();
-            row[2] = moto.getMarca(); // Nombre de la marca obtenido del JOIN
-            row[3] = moto.getNombreModelo(); // Nombre del modelo obtenido del JOIN
-            row[4] = moto.getAño();
-            row[5] = moto.getColor();
-            row[6] = moto.getNumSerie();
-            model.addRow(row);
-        }
-
-        tableMotos.setModel(model);
-        
-    } catch (Exception e) {
-        logger.log(Level.SEVERE, "Error al cargar la tabla de motos: ", e);
-        JOptionPane.showMessageDialog(this, "Error al cargar los datos de las motocicletas. Verifica la conexión a la base de datos.", "Error de BD", JOptionPane.ERROR_MESSAGE);
-    }
-}
     private void guardarMotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarMotoActionPerformed
         /// 1. Validar campos
         int idMarca = obtenerIdMarcaSeleccionada();
@@ -544,3 +536,4 @@ public class Moto extends javax.swing.JFrame {
     private javax.swing.JButton volver1;
     // End of variables declaration//GEN-END:variables
 
+}
