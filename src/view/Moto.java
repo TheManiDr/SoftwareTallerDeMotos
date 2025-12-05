@@ -59,11 +59,9 @@ public class Moto extends javax.swing.JFrame {
         });
     }
     
-    private void cargarTablaMotos() {
-    // 1. Definir encabezados y crear el modelo
+    private void cargarTablaMotos(String filtro) {
     String[] columnNames = {"ID", "Matrícula", "Marca", "Modelo", "Año", "Color", "N° Serie"};
     DefaultTableModel model = new DefaultTableModel(null, columnNames) {
-        // Impedir que la tabla sea editable
         @Override
         public boolean isCellEditable(int row, int column) {
             return false;
@@ -71,34 +69,35 @@ public class Moto extends javax.swing.JFrame {
     };
 
     try {
-        // 2. Obtener los datos de la base de datos (DAO)
-        // **IMPORTANTE: Debes asegurarte que este método devuelve los nombres de Marca y Modelo, no solo los IDs**
-        List<Motocicleta> motos = motoAlmacen.obtenerTodasLasMotos();
+        // **MODIFICADO:** Usar un método que recupere los datos aplicando el filtro
+        List<Motocicleta> motos = motoAlmacen.obtenerMotosPorFiltro(filtro);
 
-        // 3. Iterar sobre la lista y agregar filas al modelo
         for (Motocicleta moto : motos) {
             Object[] row = new Object[7];
             row[0] = moto.getIdMoto();
             row[1] = moto.getNoMatricula();
-            row[2] = moto.getMarca(); // Nombre de la marca (obtenido del JOIN en el DAO)
-            row[3] = moto.getNombreModelo(); // Nombre del modelo (obtenido del JOIN en el DAO)
+            row[2] = moto.getMarca();
+            row[3] = moto.getNombreModelo();
             row[4] = moto.getAño();
             row[5] = moto.getColor();
-            // Si el campo N° Serie está en la BD y en tu objeto Motocicleta, úsalo aquí:
-            row[6] = moto.getNumSerie(); 
+            row[6] = moto.getNumSerie();
             
             model.addRow(row);
         }
 
-        // 4. Asignar el modelo lleno a la JTable para que se muestren los datos
         tableMotos.setModel(model);
         
     } catch (Exception e) {
-        // Manejo de errores de conexión o SQL
-        logger.log(Level.SEVERE, "Error al cargar la tabla de motos:", e);
+        logger.log(Level.SEVERE, "Error al cargar la tabla de motos (con filtro):", e);
         JOptionPane.showMessageDialog(this, "Error al cargar los datos de la tabla. Revise la conexión y la consulta del DAO.", "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
     }
 }
+
+// MODIFICADO: Adaptar el método original para que llame a la nueva versión sin filtro
+    private void cargarTablaMotos() {
+    cargarTablaMotos(""); // Llama al método con un filtro vacío para obtener todos los resultados
+}
+
 
     
     
@@ -106,8 +105,10 @@ public class Moto extends javax.swing.JFrame {
     // 1. Limpiar campos de texto
     NoMatricula.setText(""); 
     Modelo.setText("");
-    año.setText(""); // AÑADIDO: Limpiar campo año
-    color.setText(""); // AÑADIDO: Limpiar campo color
+    año.setText("");
+    color.setText("");
+    // **AÑADIDO**: Limpiar campo NoSerie
+    NoSerie.setText("");
     
     // 2. Reiniciar ComboBox 'marca' a la opción por defecto (Seleccionar Marca)
     if (marca.getItemCount() > 0) {
@@ -121,28 +122,31 @@ public class Moto extends javax.swing.JFrame {
 }
     
     private void cargarMotoSeleccionada() {
-        int row = tableMotos.getSelectedRow();
-        if (row >= 0) {
-            // Obtener el ID de la moto de la primera columna
-            idMotoSeleccionada = (int) tableMotos.getValueAt(row, 0); 
+int row = tableMotos.getSelectedRow();
+    if (row >= 0) {
+        // Obtener el ID de la moto de la primera columna
+        idMotoSeleccionada = (int) tableMotos.getValueAt(row, 0); 
+        
+        // Traer la moto completa desde el DAO
+        Motocicleta moto = motoAlmacen.obtenerMotoPorId(idMotoSeleccionada);
+        
+        if (moto != null) {
+            // Rellenar campos
+            NoMatricula.setText(moto.getNoMatricula());
+            año.setText(String.valueOf(moto.getAño()));
+            color.setText(moto.getColor());
+            Modelo.setText(moto.getNombreModelo()); 
             
-            // Traer la moto completa desde el DAO (incluyendo idModelo/idCliente si se necesita)
-            Motocicleta moto = motoAlmacen.obtenerMotoPorId(idMotoSeleccionada);
+            // **AÑADIDO**: Rellenar el campo NoSerie
+            NoSerie.setText(moto.getNumSerie());
             
-            if (moto != null) {
-                // Rellenar campos
-                NoMatricula.setText(moto.getNoMatricula());
-                año.setText(String.valueOf(moto.getAño()));
-                color.setText(moto.getColor());
-                Modelo.setText(moto.getNombreModelo()); 
-                
-                // Seleccionar la Marca en el ComboBox
-                String nombreMarcaSeleccionada = moto.getMarca();
-                marca.setSelectedItem(nombreMarcaSeleccionada);
-                
-                guardarMoto.setText("Actualizar"); // Cambiar texto del botón
-            }
+            // Seleccionar la Marca en el ComboBox
+            String nombreMarcaSeleccionada = moto.getMarca();
+            marca.setSelectedItem(nombreMarcaSeleccionada);
+            
+            guardarMoto.setText("Actualizar"); // Cambiar texto del botón
         }
+    }
     }
 
 
@@ -188,6 +192,8 @@ public class Moto extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         volver1 = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        BuscarMoto = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         NoMatricula = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -203,6 +209,8 @@ public class Moto extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tableMotos = new javax.swing.JTable();
         guardarMoto = new javax.swing.JButton();
+        jLabel8 = new javax.swing.JLabel();
+        NoSerie = new javax.swing.JTextField();
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
@@ -220,17 +228,33 @@ public class Moto extends javax.swing.JFrame {
         volver1.setText("<");
         volver1.addActionListener(this::volver1ActionPerformed);
 
+        jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel7.setText("Buscar");
+
+        BuscarMoto.addActionListener(this::BuscarMotoActionPerformed);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(volver1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(107, 107, 107)
+                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(BuscarMoto, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(volver1, javax.swing.GroupLayout.DEFAULT_SIZE, 66, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(BuscarMoto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
@@ -288,6 +312,12 @@ public class Moto extends javax.swing.JFrame {
         guardarMoto.setText("Guardar");
         guardarMoto.addActionListener(this::guardarMotoActionPerformed);
 
+        jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel8.setText("No. Serie");
+
+        NoSerie.addActionListener(this::NoSerieActionPerformed);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -306,23 +336,30 @@ public class Moto extends javax.swing.JFrame {
                             .addComponent(jLabel2)
                             .addComponent(jLabel4)
                             .addComponent(jLabel5))
-                        .addGap(74, 74, 74)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(NoMatricula)
-                            .addComponent(marca, 0, 190, Short.MAX_VALUE)
-                            .addComponent(Modelo)
-                            .addComponent(año))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(74, 74, 74)
+                                .addComponent(NoMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(año, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(Modelo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(marca, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(49, 49, 49)
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(NoSerie, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(Cancelar)
                         .addGap(30, 30, 30))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(guardarMoto)
-                            .addComponent(eliminarMoto))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(guardarMoto, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(eliminarMoto, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addGap(21, 21, 21))))
             .addComponent(jScrollPane1)
         );
@@ -332,36 +369,40 @@ public class Moto extends javax.swing.JFrame {
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(57, 57, 57)
+                        .addGap(29, 29, 29)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
                             .addComponent(NoMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 79, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel4)
+                            .addComponent(marca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(guardarMoto)
-                        .addGap(7, 7, 7)))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(marca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
-                .addGap(22, 22, 22)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(Modelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(eliminarMoto))
-                .addGap(26, 26, 26)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(año, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(guardarMoto)
+                            .addComponent(jLabel8)
+                            .addComponent(NoSerie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(51, 51, 51)))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
+                        .addComponent(eliminarMoto)
+                        .addGap(57, 57, 57)
+                        .addComponent(Cancelar))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(43, 43, 43)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(Modelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(año, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel5))
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
-                            .addComponent(color, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Cancelar)))
+                            .addComponent(color, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -433,66 +474,79 @@ public class Moto extends javax.swing.JFrame {
 
     private void guardarMotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarMotoActionPerformed
         /// 1. Validar campos
-        int idMarca = obtenerIdMarcaSeleccionada();
-        if (NoMatricula.getText().isEmpty() || Modelo.getText().isEmpty() || año.getText().isEmpty() || color.getText().isEmpty() || idMarca == 0) {
-            JOptionPane.showMessageDialog(this, "Todos los campos (Matrícula, Marca, Modelo, Año, Color) son obligatorios.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+    int idMarca = obtenerIdMarcaSeleccionada();
+    // AÑADIDO: NoSerie es ahora obligatorio en la validación
+    if (NoMatricula.getText().isEmpty() || Modelo.getText().isEmpty() || año.getText().isEmpty() || color.getText().isEmpty() || NoSerie.getText().isEmpty() || idMarca == 0) {
+        JOptionPane.showMessageDialog(this, "Todos los campos (Matrícula, N° Serie, Marca, Modelo, Año, Color) son obligatorios.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    try {
+        int añoMoto = Integer.parseInt(año.getText());
+        String nombreModelo = Modelo.getText().trim();
+        
+        // 2. Obtener/Crear el ID del Modelo
+        int idModelo = modeloAlmacen.obtenerIdModeloPorNombre(nombreModelo, idMarca);
+        
+        if (idModelo <= 0) {
+            JOptionPane.showMessageDialog(this, "Error al obtener/crear el ID del Modelo.", "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        try {
-            int añoMoto = Integer.parseInt(año.getText());
-            String nombreModelo = Modelo.getText().trim();
-            
-            // 2. Obtener/Crear el ID del Modelo
-            int idModelo = modeloAlmacen.obtenerIdModeloPorNombre(nombreModelo, idMarca); 
-            
-            if (idModelo <= 0) {
-                JOptionPane.showMessageDialog(this, "Error al obtener/crear el ID del Modelo.", "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
-            Motocicleta moto = new Motocicleta();
-            // Si estamos actualizando, establecemos el ID.
-            if (idMotoSeleccionada > 0) {
-                moto.setIdMoto(idMotoSeleccionada);
-            }
-            
-            // Rellenar datos del objeto Motocicleta
-            moto.setNoMatricula(NoMatricula.getText().trim());
-            moto.setIdModelo(idModelo);
-            moto.setAño(añoMoto);
-            moto.setColor(color.getText().trim());
-            
-            // **AJUSTAR** Placeholder para ID Cliente y Número de Serie si no se capturan:
-            moto.setIdCliente(1); 
-            moto.setNumSerie("S/N"); 
-
-            boolean exito;
-            String mensaje;
-
-            if (idMotoSeleccionada == 0) { // CREATE: Si no hay ID seleccionado, insertamos
-                exito = motoAlmacen.insertarMoto(moto);
-                mensaje = exito ? "Motocicleta guardada correctamente." : "Error al guardar la motocicleta. La matrícula podría estar duplicada.";
-            } else { // UPDATE: Si hay un ID seleccionado, actualizamos
-                exito = motoAlmacen.actualizarMoto(moto);
-                mensaje = exito ? "Motocicleta actualizada correctamente." : "Error al actualizar la motocicleta.";
-            }
-
-            if (exito) {
-                JOptionPane.showMessageDialog(this, mensaje, "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                limpiarCampos();
-                cargarTablaMotos();
-            } else {
-                JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El campo Año debe ser un número entero válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-        } catch (HeadlessException e) {
-            logger.log(Level.SEVERE, "Error general al guardar/actualizar la moto: ", e);
-            JOptionPane.showMessageDialog(this, "Error inesperado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        Motocicleta moto = new Motocicleta();
+        // Si estamos actualizando, establecemos el ID.
+        if (idMotoSeleccionada > 0) {
+            moto.setIdMoto(idMotoSeleccionada);
         }
+        
+        // Rellenar datos del objeto Motocicleta
+        moto.setNoMatricula(NoMatricula.getText().trim());
+        moto.setIdModelo(idModelo);
+        moto.setAño(añoMoto);
+        moto.setColor(color.getText().trim());
+        
+        // **ACTUALIZADO**: Capturamos el valor del campo NoSerie
+        moto.setNumSerie(NoSerie.getText().trim());
+        
+        // **AJUSTAR** Placeholder para ID Cliente si no se captura:
+        moto.setIdCliente(1); // Mantenemos el placeholder si no tienes la funcionalidad de Cliente
+        
+        boolean exito;
+        String mensaje;
+
+        if (idMotoSeleccionada == 0) { // CREATE: Si no hay ID seleccionado, insertamos
+            exito = motoAlmacen.insertarMoto(moto);
+            mensaje = exito ? "Motocicleta guardada correctamente." : "Error al guardar la motocicleta. La matrícula o el N° Serie podría estar duplicado.";
+        } else { // UPDATE: Si hay un ID seleccionado, actualizamos
+            exito = motoAlmacen.actualizarMoto(moto);
+            mensaje = exito ? "Motocicleta actualizada correctamente." : "Error al actualizar la motocicleta.";
+        }
+
+        if (exito) {
+            JOptionPane.showMessageDialog(this, mensaje, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            limpiarCampos();
+            cargarTablaMotos();
+        } else {
+            JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "El campo Año debe ser un número entero válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+    } catch (HeadlessException e) {
+        logger.log(Level.SEVERE, "Error general al guardar/actualizar la moto: ", e);
+        JOptionPane.showMessageDialog(this, "Error inesperado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_guardarMotoActionPerformed
+
+    private void NoSerieActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NoSerieActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_NoSerieActionPerformed
+
+    private void BuscarMotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscarMotoActionPerformed
+        // TODO add your handling code here:
+        String filtro = BuscarMoto.getText().trim();
+        cargarTablaMotos(filtro); // Llamamos a una nueva versión del método que acepta un filtro
+    }//GEN-LAST:event_BuscarMotoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -514,9 +568,11 @@ public class Moto extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField BuscarMoto;
     private javax.swing.JButton Cancelar;
     private javax.swing.JTextField Modelo;
     private javax.swing.JTextField NoMatricula;
+    private javax.swing.JTextField NoSerie;
     private javax.swing.JTextField año;
     private javax.swing.JTextField color;
     private javax.swing.JButton eliminarMoto;
@@ -527,6 +583,8 @@ public class Moto extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
