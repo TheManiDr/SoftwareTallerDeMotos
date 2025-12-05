@@ -12,23 +12,20 @@ public class MySQLConexion {
     // Configuración (AJUSTA ESTOS VALORES)
     private static final String URL = "jdbc:mysql://localhost:3306/motomami?serverTimezone=UTC"; 
     private static final String USER = "root"; 
-    private static final String PASSWORD = "Gatoara09."; // <--- ¡CAMBIA ESTA CONTRASEÑA!
+    private static final String PASSWORD = "tu_password"; // <--- ¡REEMPLAZA ESTA CONTRASEÑA!
     
     private static final Logger logger = Logger.getLogger(MySQLConexion.class.getName());
     
-    // La conexión global (puede ser estática o manejada por una instancia)
     private static Connection con = null;
 
     /**
      * Establece la conexión a la base de datos y la retorna.
-     * Si la conexión ya existe y está abierta, la reutiliza.
-     * @return El objeto Connection.
+     * @return El objeto Connection o null si falla.
      */
-    public static Connection conectar() {
+    public static Connection getConnection() {
+        // Usamos getConnection() para compatibilidad con tu DAO
         if (con == null) {
             try {
-                // Si la línea 61 de tu código es aquí, debe estar implementada.
-                // Class.forName("com.mysql.cj.jdbc.Driver"); // Puede ser opcional
                 con = DriverManager.getConnection(URL, USER, PASSWORD);
                 logger.log(Level.INFO, "Conectado a motomami exitosamente.");
                 
@@ -43,12 +40,7 @@ public class MySQLConexion {
         return con;
     }
     
-    // Si tu código usa getConexion() también, asegúrate de que use conectar().
-    public static Connection getConexion() {
-        return conectar(); 
-    }
-
-    // Método para cerrar la conexión (buena práctica)
+    // Método para cerrar la conexión (opcional, pero buena práctica)
     public static void close(Connection conn) {
         if (conn != null) {
             try {
@@ -57,9 +49,5 @@ public class MySQLConexion {
                 logger.log(Level.WARNING, "Error al cerrar la conexión", e);
             }
         }
-    }
-
-    public static Connection getConnection() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
