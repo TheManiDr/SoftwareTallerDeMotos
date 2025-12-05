@@ -4,6 +4,18 @@
  */
 package view;
 
+import Almacen.MotocicletaAlmacen;
+import Almacen.MarcaAlmacen; // Necesario para cargar el JComboBox de marcas
+import Almacen.ModeloAlmacen; // Necesario para buscar el idModelo
+import Model.Motocicleta;
+import Model.Marca;
+import Model.Modelo;
+import java.util.List;
+import java.util.logging.Level;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author lobat
@@ -17,9 +29,23 @@ public class Moto extends javax.swing.JFrame {
      */
     public Moto() {
         initComponents();
-        setLocationRelativeTo(null); 
+        setLocationRelativeTo(null);
+        inicializarComponentesPersonalizados(); 
     }
 
+    private void inicializarComponentesPersonalizados() {
+        cargarTablaMotos();
+        cargarComboMarcas();
+        limpiarCampos();
+        // Configuramos la tabla para que sea sensible a la selección
+        tableMotos.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && tableMotos.getSelectedRow() != -1) {
+                cargarMotoSeleccionada();
+            }
+        });
+    }
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -227,15 +253,15 @@ public class Moto extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void NoMatriculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NoMatriculaActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_NoMatriculaActionPerformed
 
     private void marcaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_marcaActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_marcaActionPerformed
 
     private void volver1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_volver1ActionPerformed
-        // TODO add your handling code here:
+        
         Menu nuevoFrame = new Menu();
     
     // Mostrar el nuevo frame
@@ -245,11 +271,11 @@ public class Moto extends javax.swing.JFrame {
     }//GEN-LAST:event_volver1ActionPerformed
 
     private void CancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CancelarActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_CancelarActionPerformed
 
     private void eliminarMotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarMotoActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_eliminarMotoActionPerformed
 
     private void ModeloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ModeloActionPerformed

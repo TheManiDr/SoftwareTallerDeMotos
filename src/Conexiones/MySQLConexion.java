@@ -9,6 +9,10 @@ import java.util.Properties;
 
 public class MySQLConexion {
 
+    public static Connection getConexion() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
     Connection con;
 
     public Connection conectar() {
