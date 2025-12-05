@@ -11,7 +11,7 @@ public class MySQLConexion {
     // Configuración de la conexión (AJUSTA ESTOS VALORES)
     private static final String URL = "jdbc:mysql://localhost:3306/motomami?serverTimezone=UTC"; 
     private static final String USER = "root"; // Tu usuario de MySQL
-    private static final String PASSWORD = "tu_password"; // ¡Cambia esto por tu contraseña!
+    private static final String PASSWORD = "Gatoara09."; // ¡Cambia esto por tu contraseña!
     
     private static final Logger logger = Logger.getLogger(MySQLConexion.class.getName());
 
