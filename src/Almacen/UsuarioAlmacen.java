@@ -1,9 +1,10 @@
 package Almacen;
 
 import java.sql.*;
-import model.Usuario;
+import Model.Usuario;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 public class UsuarioAlmacen {
     

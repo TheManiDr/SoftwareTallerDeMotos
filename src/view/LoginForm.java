@@ -6,7 +6,7 @@ package view;
 
 import Almacen.UsuarioAlmacen;
 import javax.swing.JOptionPane;
-import model.Usuario;
+import Model.Usuario;
 
 
 /**

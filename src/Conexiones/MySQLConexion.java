@@ -12,7 +12,7 @@ public class MySQLConexion {
     // Configuración (AJUSTA ESTOS VALORES)
     private static final String URL = "jdbc:mysql://localhost:3306/motomami?serverTimezone=UTC"; 
     private static final String USER = "root"; 
-    private static final String PASSWORD = "tu_password"; // <--- ¡REEMPLAZA ESTA CONTRASEÑA!
+    private static final String PASSWORD = "Gatoara09."; // Tu contraseña
     
     private static final Logger logger = Logger.getLogger(MySQLConexion.class.getName());
     
@@ -23,7 +23,6 @@ public class MySQLConexion {
      * @return El objeto Connection o null si falla.
      */
     public static Connection getConnection() {
-        // Usamos getConnection() para compatibilidad con tu DAO
         if (con == null) {
             try {
                 con = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -49,5 +48,21 @@ public class MySQLConexion {
                 logger.log(Level.WARNING, "Error al cerrar la conexión", e);
             }
         }
+    }
+
+    /**
+     * CORREGIDO: Retorna la conexión. Usado por MarcaAlmacen, etc.
+     */
+    public static Connection getConexion() {
+        // Llama al método estático que ya implementaste y funciona.
+        return getConnection(); 
+    }
+
+    /**
+     * CORREGIDO: Retorna la conexión. Usado en alguna parte de tu código.
+     */
+    public Connection conectar() {
+        // Llama al método estático. Nota: Este método no es estático, pero llama al estático.
+        return getConnection(); 
     }
 }
