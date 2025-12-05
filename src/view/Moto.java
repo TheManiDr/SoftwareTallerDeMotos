@@ -4,12 +4,12 @@
  */
 package view;
 
+import Almacen.MarcaAlmacen;
+import Almacen.ModeloAlmacen;
 import Almacen.MotocicletaAlmacen;
-import Almacen.MarcaAlmacen; // Necesario para cargar el JComboBox de marcas
-import Almacen.ModeloAlmacen; // Necesario para buscar el idModelo
 import Model.Motocicleta;
 import Model.Marca;
-import Model.Modelo;
+import java.awt.HeadlessException;
 import java.util.List;
 import java.util.logging.Level;
 import javax.swing.DefaultComboBoxModel;
@@ -45,7 +45,94 @@ public class Moto extends javax.swing.JFrame {
         });
     }
     
+    private void cargarTablaMotos() {
+        // Definir los encabezados de la tabla con los campos del JOIN
+        String[] columnNames = {"ID", "Matrícula", "Marca", "Modelo", "Año", "Color", "N° Serie"};
+        DefaultTableModel model = new DefaultTableModel(null, columnNames) {
+            // Impedir que la tabla sea editable
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        List<Motocicleta> motos = MotocicletaAlmacen.obtenerTodasLasMotos();
+
+        for (Motocicleta moto : motos) {
+            Object[] row = new Object[7];
+            row[0] = moto.getIdMoto();
+            row[1] = moto.getNoMatricula();
+            row[2] = moto.getMarca(); // Nombre de la Marca (gracias al JOIN)
+            row[3] = moto.getNombreModelo(); // Nombre del Modelo (gracias al JOIN)
+            row[4] = moto.getAño();
+            row[5] = moto.getColor();
+            row[6] = moto.getNumSerie();
+            model.addRow(row);
+        }
+        tableMotos.setModel(model);
+    }
     
+    private void cargarMotoSeleccionada() {
+        int row = tableMotos.getSelectedRow();
+        if (row >= 0) {
+            // Obtenemos el ID de la moto desde la primera columna de la fila seleccionada
+            int idMotoSeleccionada = (int) tableMotos.getValueAt(row, 0); 
+            
+            // Opcional: Obtener todos los detalles del objeto Motocicleta de la BD
+            Motocicleta moto = motoAlmacen.obtenerMotoPorId(idMotoSeleccionada);
+            
+            if (moto != null) {
+                NoMatricula.setText(moto.getNoMatricula());
+                año.setText(String.valueOf(moto.getAño()));
+                color.setText(moto.getColor());
+                // El campo Modelo lo llenamos con el numSerie y Modelo de la tabla (si la base no usa numSerie para el modelo, ajusta aquí)
+                Modelo.setText(moto.getNombreModelo()); // Usar el nombre del modelo
+                
+                // Seleccionar la Marca correcta en el JComboBox
+                String nombreMarca = moto.getMarca();
+                marca.setSelectedItem(nombreMarca);
+                
+                // Guardar el idModelo (necesario para la actualización)
+                int idModeloGuardado = moto.getIdModelo(); 
+                
+                // Nota: Asumo que tienes un JTextField para el numSerie (si no, lo ignoras)
+                // numSerie.setText(moto.getNumSerie()); 
+
+                guardarMoto.setText("Actualizar");
+            }
+        }
+    }
+
+
+    // -------------------------------------------------------------
+    // GESTIÓN DE JCOMBOBOX (Marca)
+    // -------------------------------------------------------------
+
+    private void cargarComboMarcas() {
+        Iterable<Marca> listaMarcas; 
+        listaMarcas = MarcaAlmacen.obtenerTodasLasMarcas();
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        model.addElement("Seleccionar Marca"); // Opción por defecto
+        
+        for (Marca m : listaMarcas) {
+            model.addElement(m.getNombreMarca());
+        }
+        marca.setModel(model);
+    }
+    
+    private int obtenerIdMarcaSeleccionada() {
+        String nombreMarca = (String) marca.getSelectedItem();
+        if (nombreMarca == null || nombreMarca.equals("Seleccionar Marca")) {
+            return 0;
+        }
+        Iterable<Marca> listaMarcas = null;
+        for (Marca m : listaMarcas) {
+            if (m.getNombreMarca().equals(nombreMarca)) {
+                return m.getIdMarca();
+            }
+        }
+        return 0;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -271,11 +358,36 @@ public class Moto extends javax.swing.JFrame {
     }//GEN-LAST:event_volver1ActionPerformed
 
     private void CancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CancelarActionPerformed
-        
+         NoMatricula.setText("");
+        marca.setSelectedIndex(0);
+        Modelo.setText("");
+        año.setText("");
+        color.setText("");
+        // numSerie.setText(""); // Si tienes campo para número de serie
+        guardarMoto.setText("Guardar");
+        tableMotos.clearSelection();
     }//GEN-LAST:event_CancelarActionPerformed
 
     private void eliminarMotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarMotoActionPerformed
-        
+        String idMotoSeleccionada = null;
+         if (idMotoSeleccionada == 0) {
+            JOptionPane.showMessageDialog(this, "Selecciona una motocicleta de la tabla para eliminar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "¿Estás seguro de que deseas eliminar la motocicleta con ID: " + idMotoSeleccionada + "?\n(Esto puede fallar si existen órdenes asociadas)", 
+            "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            if (motoAlmacen.eliminarMoto(idMotoSeleccionada)) {
+                JOptionPane.showMessageDialog(this, "Motocicleta eliminada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                limpiarCampos();
+                cargarTablaMotos();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al eliminar la motocicleta. Podría haber registros asociados (llaves foráneas).", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_eliminarMotoActionPerformed
 
     private void ModeloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ModeloActionPerformed
@@ -292,18 +404,71 @@ public class Moto extends javax.swing.JFrame {
 
     private void guardarMotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarMotoActionPerformed
         // TODO add your handling code here:
+        // 1. Validar campos
+        if (NoMatricula.getText().isEmpty() || Modelo.getText().isEmpty() || año.getText().isEmpty() || color.getText().isEmpty() || obtenerIdMarcaSeleccionada() == 0) {
+            JOptionPane.showMessageDialog(this, "Todos los campos (Matrícula, Marca, Modelo, Año, Color) son obligatorios.", "Error de Validación", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        try {
+            int añoMoto = Integer.parseInt(año.getText());
+            int idMarca = obtenerIdMarcaSeleccionada();
+            String nombreModelo = Modelo.getText().trim();
+            
+            // 2. Obtener/Crear el ID del Modelo (Asume que usas el nombre en el JTextField 'Modelo')
+            var idModelo = ModeloAlmacen.obtenerIdModeloPorNombre(nombreModelo, idMarca); 
+            // NOTA: Debes implementar obtenerIdModeloPorNombre() en ModeloAlmacen para que:
+            // a) Busque el modelo por nombre y marca. Si existe, retorna el ID.
+            // b) Si no existe, lo inserta en la tabla 'modelo' y retorna el nuevo ID.
+            
+            if (idModelo <= 0) {
+                JOptionPane.showMessageDialog(this, "Error al obtener/crear el ID del Modelo.", "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            Motocicleta moto = new Motocicleta();
+            moto.setNoMatricula(NoMatricula.getText().trim());
+            moto.setIdModelo(idModelo);
+            moto.setAño(añoMoto);
+            moto.setColor(color.getText().trim());
+            // Nota: idCliente y numSerie se manejan aquí. Si numSerie no se captura, usa una cadena vacía o un valor por defecto.
+            moto.setNumSerie("NUM_SERIE_PENDIENTE"); // AJUSTA ESTO SI CAPTURAS NUM_SERIE
+            moto.setIdCliente(1); // AJUSTA ESTO: ¿Cómo se asigna el cliente? Usamos 1 como placeholder.
+
+            boolean exito;
+            String mensaje;
+            int idMotoSeleccionada = 0;
+
+            if (idMotoSeleccionada == 0) { // CREATE
+                exito = motoAlmacen.insertarMoto(moto);
+                mensaje = exito ? "Motocicleta guardada correctamente." : "Error al guardar la motocicleta.";
+            } else { // UPDATE
+                moto.setIdMoto(idMotoSeleccionada);
+                exito = motoAlmacen.actualizarMoto(moto);
+                mensaje = exito ? "Motocicleta actualizada correctamente." : "Error al actualizar la motocicleta.";
+            }
+
+            if (exito) {
+                JOptionPane.showMessageDialog(this, mensaje, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                limpiarCampos();
+                cargarTablaMotos();
+            } else {
+                JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El campo Año debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException e) {
+            logger.log(Level.SEVERE, "Error general al guardar/actualizar la moto: ", e);
+            JOptionPane.showMessageDialog(this, "Error inesperado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_guardarMotoActionPerformed
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
+    try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
@@ -313,7 +478,6 @@ public class Moto extends javax.swing.JFrame {
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new Moto().setVisible(true));
@@ -341,4 +505,8 @@ public class Moto extends javax.swing.JFrame {
     private javax.swing.JTable tableMotos;
     private javax.swing.JButton volver1;
     // End of variables declaration//GEN-END:variables
+
+    private void limpiarCampos() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
